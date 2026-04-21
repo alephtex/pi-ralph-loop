@@ -1,0 +1,20 @@
+{
+  "name": "pi-ralph-loop",
+  "version": "1.0.0",
+  "description": "A looping command for pi that keeps sending 'continue' until the LLM writes >system-promise-done<",
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "pi-agent",
+    "coding-agent"
+  ],
+  "pi": {
+    "extensions": ["./index.ts"]
+  },
+  "author": "alephtex",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alephtex/pi-ralph-loop"
+  }
+}
