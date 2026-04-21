@@ -1,6 +1,6 @@
 # pi-ralph-loop
 
-A looping command for [pi](https://github.com/badlogic/pi-mono) that keeps sending "continue" to the LLM until it writes the special marker `>system-promise-done<`.
+A looping command for [pi](https://github.com/badlogic/pi-mono) that keeps sending "continue" to the LLM with your original task context, until it writes the special marker `>system-promise-done<`.
 
 ![pi](https://img.shields.io/badge/pi-coding--agent-v1.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -9,20 +9,14 @@ A looping command for [pi](https://github.com/badlogic/pi-mono) that keeps sendi
 
 This extension is useful when you want the LLM to keep working on a task until it explicitly signals completion. Just tell the LLM to end its response with `>system-promise-done<` when finished.
 
-## Commands
-
-| Command | Description |
-|---------|-------------|
-| `/ralph-loop` | Start the loop - sends "continue" repeatedly until the done marker is found |
-| `/ralph-stop` | Stop the loop manually |
-
 ## How It Works
 
-1. `/ralph-loop` sends an initial "continue" message
-2. After each LLM turn completes (no more tool calls)
-3. Checks if the response contains `>system-promise-done<`
-4. If found: stops the loop and shows completion notification
-5. If not found: sends another "continue" and increments iteration counter
+1. `/ralph-loop` captures your last user message as the "task"
+2. Sends "continue" with the original task context
+3. After each LLM turn completes (no more tool calls)
+4. Checks if the response contains `>system-promise-done<`
+5. If found: stops the loop and shows completion notification
+6. If not found: sends another "continue" with task context
 
 ## Installation
 
@@ -46,28 +40,36 @@ cp -r pi-ralph-loop/index.ts ~/.pi/agent/extensions/
 
 3. Restart pi or run `/reload`
 
-## Usage Example
+## Usage
 
 ```
-You: Write a comprehensive test suite for my auth module. End your response with >system-promise-done< when complete.
+You: Write a comprehensive test suite for my auth module.
+     Make sure to end with >system-promise-done< when complete.
 
 /ralph-loop
 
-pi: (starts sending "continue" after each LLM turn)
+pi: Starting Ralph loop...
 
-... LLM works on tests, writes tests, writes more tests ...
+pi: (continues automatically with task context)
 
-pi: Great, continue
-    (LLM writes more tests)
+    continue
+    Task: Write a comprehensive test suite for my auth module.
+          Make sure to end with >system-promise-done< when complete.
 
-pi: All tests are written. Here's the summary:
-    - Unit tests for login/logout
-    - Integration tests for token refresh
-    - Edge case coverage
+    ... LLM writes tests ...
+
+    All tests are written.
     >system-promise-done<
 
-pi: Ralph loop complete after 5 iteration(s)!
+pi: Ralph loop complete after 3 iteration(s)!
 ```
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `/ralph-loop` | Start the loop - captures your last message as task, sends "continue" with context |
+| `/ralph-stop` | Stop the loop manually |
 
 ## Status Bar
 
@@ -75,6 +77,12 @@ While running, the iteration count is shown in the status bar:
 ```
 Ralph loop: iteration 3...
 ```
+
+## Tips
+
+- Write a clear initial prompt before running `/ralph-loop`
+- Include "end with >system-promise-done<" in your original prompt
+- The original task is truncated to 500 chars if too long
 
 ## Requirements
 
