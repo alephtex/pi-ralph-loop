@@ -1,5 +1,8 @@
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/steimerbyte)
 
+> ⭐ If you find this useful, consider [supporting me on Ko-fi](https://ko-fi.com/steimerbyte)!
+
+
 # pi-ralph-loop
 
 A looping command for [pi](https://github.com/badlogic/pi-mono) that keeps sending "continue" to the LLM with your original task context, until it writes the special marker `>system-promise-done<`.
