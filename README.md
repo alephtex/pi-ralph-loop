@@ -1,52 +1,97 @@
-# pi-ralph-loop
+# Ralph Wiggum Extension
 
-A looping command for [pi](https://github.com/badlogic/pi-mono) that auto-reprompts the LLM with your original task until stopped.
+Long-running agent loops for iterative development. Best for long-running-tasks that are verifiable. Builds on Geoffrey Huntley's ralph-loop for Claude Code and adapts it for Pi.
+This one is cool because:
+- You can ask Pi and it will set up and run the loop all by itself in-session. If you prefer, it can also invoke another Pi via tmux
+- You can have multiple parallel loops at once in the same repo (unlike OG ralph-wiggum)
+- You can ask Pi to self-reflect at regular intervals so it doesn't mindlessly grind through wrong instructions (optional)
 
-![License](https://img.shields.io/badge/license-MIT-green)
+<img width="432" height="357" alt="Screenshot 2026-01-07 at 17 16 24" src="https://github.com/user-attachments/assets/68cdab11-76c6-4aed-9ea1-558cbb267ea6" />
 
-## Features
-
-- **Single toggle command**: `/ralph` to start/stop
-- **Per-session state**: Each session has its own loop state
-- **Auto-reprompt**: Automatically sends your task after each LLM response
-- **Visual indicator**: Blinking green circle when active
+**Note: This is a flat version without subagents, similar to the [Anthropic plugins implementation](https://github.com/anthropics/claude-code-plugins/tree/main/ralph-loop).**
 
 ## Installation
 
 ```bash
-pi install git:github.com:steimbyte/pi-ralph-loop
+pi install npm:@tmustier/pi-ralph-wiggum
 ```
-
-## Usage
 
 ```bash
-# Start loop with a task
-/ralph Write tests for my auth module
-
-# Or start with last user message as task
-You: Write a comprehensive test suite
-/ralph
-
-# Stop the loop
-/ralph
+pi install git:github.com/tmustier/pi-extensions
 ```
 
-## How It Works
+Then filter to just this extension in `~/.pi/agent/settings.json`:
 
-1. `/ralph` captures your task (from args or last message)
-2. Sends the task to the LLM
-3. After each response, automatically reprompts with the same task
-4. Loops until you type `/ralph` again to stop
+```json
+{
+  "packages": [
+    {
+      "source": "git:github.com/tmustier/pi-extensions",
+      "extensions": ["pi-ralph-wiggum/index.ts"],
+      "skills": ["pi-ralph-wiggum/SKILL.md"]
+    }
+  ]
+}
+```
 
-## Status Indicator
+## Recommended usage: just ask Pi
+You ask Pi to set up a ralph-wiggum loop.
+- Pi sets up `.ralph/<name>.md` with goals and a checklist (like a list of features to build, errors to check, or files to refactor)
+- You let Pi know:
+  1. What the task is and completion / tests to run
+  2. How many items to process per iteration
+  3. How often to commit
+  4. (optionally) After how many items it should take a step back and self-reflect
+- Pi runs `ralph_start`, beginning iteration 1.
+  - It gets a prompt telling it to work on the task, update the task file, and call ralph_done when it finishes that iteration
+  - When the iteration is done, it calls `ralph_done`, resending the same prompt*
+- Pi runs until either:
+  - All tasks are done (Pi sends `<promise>COMPLETE</promise>`)
+  - Max iterations (default 50)
+  - You hit `esc` (pausing the loop)
+If you hit `esc`, you can run `/ralph-stop` to clear the loop. Alternatively, just tell Pi to continue to keep going.
 
-- 🟢 (blinking green) = Ralph is active
-- ⚫ (dim) = Ralph is stopped
+## Commands
 
-## Requirements
+| Command | Description |
+|---------|-------------|
+| `/ralph start <name\|path>` | Start a new loop |
+| `/ralph resume <name>` | Resume a paused loop |
+| `/ralph stop` | Pause current loop |
+| `/ralph-stop` | Stop active loop (idle only) |
+| `/ralph status` | Show all loops |
+| `/ralph list --archived` | Show archived loops |
+| `/ralph archive <name>` | Move loop to archive |
+| `/ralph clean [--all]` | Clean completed loops |
+| `/ralph cancel <name>` | Delete a loop |
+| `/ralph nuke [--yes]` | Delete all .ralph data |
 
-- [pi coding agent](https://www.npmjs.com/package/@mariozechner/pi-coding-agent)
+### Options for start
 
-## License
+| Option | Description |
+|--------|-------------|
+| `--max-iterations N` | Stop after N iterations (default 50) |
+| `--items-per-iteration N` | Suggest N items per turn (prompt hint) |
+| `--reflect-every N` | Reflect every N iterations |
 
-MIT
+## Agent Tool
+
+The agent can self-start loops using `ralph_start`:
+
+```
+ralph_start({
+  name: "refactor-auth",
+  taskContent: "# Task\n\n## Checklist\n- [ ] Item 1",
+  maxIterations: 50,
+  itemsPerIteration: 3,
+  reflectEvery: 10
+})
+```
+
+## Credits
+
+Based on Geoffrey Huntley's Ralph Wiggum approach for long-running agent tasks.
+
+## Changelog
+
+See `CHANGELOG.md`.
