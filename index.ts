@@ -18,7 +18,7 @@ interface RalphSettings {
 }
 
 const DEFAULT_SETTINGS: RalphSettings = {
-	maxIterations: 50,
+	maxIterations: 10000,
 };
 
 function loadRalphSettings(): RalphSettings {
@@ -585,7 +585,7 @@ Commands:
 Options:
   --items-per-iteration N  Suggest N items per turn (prompt hint)
   --reflect-every N        Reflect every N iterations
-  --max-iterations N       Stop after N iterations (from settings)
+  --max-iterations N       Stop after N iterations (default: 10000)
 
 To stop: press ESC to interrupt, then run /ralph-stop when idle
 
