@@ -95,3 +95,9 @@ Based on Geoffrey Huntley's Ralph Wiggum approach for long-running agent tasks.
 ## Changelog
 
 See `CHANGELOG.md`.
+
+---
+
+## Hinweis zur KI-Unterstützung
+
+Bei der Entwicklung dieses Projekts wurden teilweise oder vollständig KI-gestützte Tools und Technologien eingesetzt.
